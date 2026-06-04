@@ -1,1 +1,1 @@
-V26: déplacement des pièces corrigé depuis les fichiers envoyés. Boutons ↑ Monter / ↓ Descendre ajoutés sans changer le stockage local.
+V27: vrai correctif déplacement pièces. Le code utilise data-act/data-room; boutons ↑ Monter / ↓ Descendre branchés sur handleRoomClick. Stockage local inchangé.
