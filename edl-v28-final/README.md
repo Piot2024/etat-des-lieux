@@ -1,0 +1,1 @@
+V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.

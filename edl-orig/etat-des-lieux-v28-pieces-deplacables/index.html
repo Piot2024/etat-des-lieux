@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#12324a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>État des lieux Suisse</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css?v=25">
+</head>
+<body>
+<header class="hero">
+  <div><h1>État des lieux Suisse</h1><p>Application web — appartements, locataires, clés, pièces, photos, signatures, PDF A4.</p></div>
+  <div class="top-actions">
+    <button id="btnExport" class="light">Exporter données</button>
+    <label class="light filebtn">Importer données<input id="fileImport" type="file" accept=".json"></label>
+  </div>
+</header>
+<nav class="toolbar">
+  <button id="btnNewApartment">+ Appartement</button>
+  <button id="btnAddTenant">+ Locataire</button>
+  <button id="btnAddKey">+ Clé / badge</button>
+  <button id="btnAddRoom">+ Pièce</button>
+  <button id="btnSave" class="light">Sauvegarder</button>
+  <button id="btnPrint" class="printButton">PDF A4</button>
+  <button id="btnDelete" class="danger">Supprimer dossier</button>
+</nav>
+<main class="app">
+  <aside class="panel">
+    <h2>Appartements <span id="apartmentCount" class="badge">0</span></h2>
+    <input id="searchInput" placeholder="Recherche adresse, locataire, référence...">
+    <div id="apartmentList"></div>
+  </aside>
+  <section class="work">
+    <div id="emptyState" class="card empty"><h2>Crée ton premier appartement</h2><p>Appuie sur <b>+ Appartement</b>.</p></div>
+    <div id="editor" class="hidden">
+      <div class="tabs">
+        <button data-tab="general" class="active">Général</button>
+        <button data-tab="people">Locataires / Régie</button>
+        <button data-tab="keys">Clés</button>
+        <button data-tab="rooms">Pièces</button>
+        <button data-tab="photos">Photos générales</button>
+        <button data-tab="signatures">Signatures</button>
+      </div>
+      <section id="tab-general" class="tab active card">
+        <h2>Informations générales</h2>
+        <div class="grid4">
+          <label>Type<select data-field="type"><option>Entrée</option><option>Sortie</option><option>Pré-état des lieux</option></select></label>
+          <label>Date<input data-field="date" type="date"></label>
+          <label>Heure<input data-field="time" type="time"></label>
+          <label>Référence<input data-field="reference" placeholder="APT-001"></label>
+        </div>
+        <label>Adresse complète<textarea data-field="address" placeholder="Rue, numéro, NPA, ville, étage, appartement..."></textarea></label>
+        <div class="grid4">
+          <label>Type logement<input data-field="housingType" placeholder="3.5 pièces"></label>
+          <label>Surface<input data-field="surface" placeholder="m²"></label>
+          <label>Étage<input data-field="floor" placeholder="2e"></label>
+          <label>Annexe<input data-field="annex" placeholder="cave, balcon, parking..."></label>
+        </div>
+        <label>Observations générales / réserves<textarea data-field="notes"></textarea></label>
+      </section>
+      <section id="tab-people" class="tab card">
+        <div class="row"><h2>Locataire(s) / colocataire(s)</h2><button id="btnAddTenantInside">+ Ajouter</button></div>
+        <div id="tenantList"></div>
+        <h2>Régie / propriétaire</h2>
+        <div class="grid2">
+          <label>Régie / gérance<input data-field="agencyName"></label>
+          <label>Contact régie<input data-field="agencyContact"></label>
+          <label>Propriétaire / bailleur<input data-field="ownerName"></label>
+          <label>Contact propriétaire<input data-field="ownerContact"></label>
+        </div>
+      </section>
+      <section id="tab-keys" class="tab card">
+        <div class="row"><h2>Clés, badges, télécommandes, accessoires</h2><button id="btnAddKeyInside">+ Ajouter</button></div>
+        <div id="keyList"></div>
+      </section>
+      <section id="tab-rooms" class="tab card">
+        <div class="row"><h2>Pièces et éléments</h2><button id="btnAddRoomInside">+ Ajouter une pièce</button></div>
+        <div id="roomList"></div>
+      </section>
+      <section id="tab-photos" class="tab card">
+        <h2>Photos générales</h2>
+        <label class="upload">Ajouter photos générales<input id="globalPhotoInput" type="file" accept="image/*" multiple></label>
+        <div id="globalPhotoGrid" class="photo-grid"></div>
+      </section>
+      <section id="tab-signatures" class="tab card">
+        <h2>Signatures</h2>
+        <div class="grid2">
+          <div><h3>Locataire(s)</h3><canvas id="tenantSignature" width="700" height="220"></canvas><button data-clear="tenantSignature" class="light">Effacer</button></div>
+          <div><h3>Régie / propriétaire</h3><canvas id="ownerSignature" width="700" height="220"></canvas><button data-clear="ownerSignature" class="light">Effacer</button></div>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+<div id="printArea"></div>
+<script src="js/app.js?v=25"></script>
+</body>
+</html>
