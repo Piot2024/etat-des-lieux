@@ -1,1 +1,1 @@
-Version modifiée: Entrée = colonne À charge masquée; Sortie = colonne À charge affichée. Mise en page PDF non modifiée.
+V32: Entrée = colonne À charge supprimée dans l'écran et le PDF. Sortie = colonne À charge affichée. PDF non modifié côté mise en page.

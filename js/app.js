@@ -29,9 +29,73 @@ function isEtatEntree(){
   return t.includes('entrée') || t.includes('entree');
 }
 
-function renderRooms(){let a=apt(),box=$("#roomList");box.innerHTML="";a.rooms.forEach(r=>{r.photos=r.photos||[];let div=document.createElement('div');div.className='room';div.innerHTML=`<div class=row><input class=room-title value="${esc(r.name)}"><button type=button class="light" data-act=move-up data-room="${r.id}">↑</button><button type=button class="light" data-act=move-down data-room="${r.id}">↓</button><button type=button class=danger data-act=remove-room data-room="${r.id}">Supprimer pièce</button></div><table><thead><tr><th>Élément</th><th>État</th><th>Observation</th>${isEtatEntree()?'':'<th>À charge</th>'}<th>Photo</th><th></th></tr></thead><tbody></tbody></table><button type=button class=addel data-act=add-element data-room="${r.id}">+ Élément</button><h3>Photos de la pièce</h3><div class=small-help>Photos enregistrées dans cette pièce : <b>${r.photos.length}</b></div><input type=file accept="image/*" multiple class=room-file-input><div class="photo-grid pgrid"></div><label>Remarques pièce<textarea class=rnotes>${esc(r.notes)}</textarea></label>`;
-$('.room-title',div).oninput=e=>{r.name=e.target.value;save()};$('.rnotes',div).oninput=e=>{r.notes=e.target.value;save()};let tb=$('tbody',div);r.elements.forEach(el=>{let tr=document.createElement('tr');tr.innerHTML=`<td><input data-el=name value="${esc(el.name)}"></td><td><select data-el=state><option>Bon</option><option>Usure normale</option><option>Moyen</option><option>Mauvais</option><option>Défectueux</option><option>À réparer</option><option>Non contrôlé</option></select></td><td><textarea data-el=observation>${esc(el.observation)}</textarea></td>${isEtatEntree()?'':`<td><select data-el=charge><option>À déterminer</option><option>Locataire / colocataire</option><option>Bailleur / régie</option><option>Usure normale</option><option>Non applicable</option></select></td>`}<td><input data-el=photoNo value="${esc(el.photoNo)}"></td><td><button type=button class=danger data-act=remove-element data-room="${r.id}" data-elid="${el.id}">Supprimer</button></td>`;$('[data-el=state]',tr).value=el.state;if($('[data-el=charge]',tr)) $('[data-el=charge]',tr).value=el.charge;$$('[data-el]',tr).forEach(inp=>{inp.oninput=()=>{el[inp.dataset.el]=inp.value;save()};inp.onchange=inp.oninput});tb.appendChild(tr)});
-$('.room-file-input',div).onchange=e=>{let files=e.target.files;if(!files||!files.length)return;readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});e.target.value=''};photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});box.appendChild(div)})}
+function renderRooms(){
+  let a=apt(),box=$("#roomList");
+  box.innerHTML="";
+  let entree=isEtatEntree();
+
+  a.rooms.forEach(r=>{
+    r.photos=r.photos||[];
+    let div=document.createElement('div');
+    div.className='room';
+
+    div.innerHTML=`<div class=row>
+      <input class=room-title value="${esc(r.name)}">
+      <button type=button class=danger data-act=remove-room data-room="${r.id}">Supprimer pièce</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Élément</th>
+          <th>État</th>
+          <th>Observation</th>
+          ${entree ? '' : '<th>À charge</th>'}
+          <th>Photo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button type=button class=addel data-act=add-element data-room="${r.id}">+ Élément</button>
+    <h3>Photos de la pièce</h3>
+    <div class=small-help>Photos enregistrées dans cette pièce : <b>${r.photos.length}</b></div>
+    <input type=file accept="image/*" multiple class=room-file-input>
+    <div class="photo-grid pgrid"></div>
+    <label>Remarques pièce<textarea class=rnotes>${esc(r.notes)}</textarea></label>`;
+
+    $('.room-title',div).oninput=e=>{r.name=e.target.value;save()};
+    $('.rnotes',div).oninput=e=>{r.notes=e.target.value;save()};
+
+    let tb=$('tbody',div);
+    r.elements.forEach(el=>{
+      let tr=document.createElement('tr');
+      tr.innerHTML=`<td><input data-el=name value="${esc(el.name)}"></td>
+        <td><select data-el=state><option>Bon</option><option>Usure normale</option><option>Moyen</option><option>Mauvais</option><option>Défectueux</option><option>À réparer</option><option>Non contrôlé</option></select></td>
+        <td><textarea data-el=observation>${esc(el.observation)}</textarea></td>
+        ${entree ? '' : `<td><select data-el=charge><option>À déterminer</option><option>Locataire / colocataire</option><option>Bailleur / régie</option><option>Usure normale</option><option>Non applicable</option></select></td>`}
+        <td><input data-el=photoNo value="${esc(el.photoNo)}"></td>
+        <td><button type=button class=danger data-act=remove-element data-room="${r.id}" data-elid="${el.id}">Supprimer</button></td>`;
+
+      $('[data-el=state]',tr).value=el.state;
+      if($('[data-el=charge]',tr)) $('[data-el=charge]',tr).value=el.charge;
+      $$('[data-el]',tr).forEach(inp=>{
+        inp.oninput=()=>{el[inp.dataset.el]=inp.value;save()};
+        inp.onchange=inp.oninput;
+      });
+      tb.appendChild(tr);
+    });
+
+    $('.room-file-input',div).onchange=e=>{
+      let files=e.target.files;
+      if(!files||!files.length)return;
+      readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});
+      e.target.value='';
+    };
+
+    photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});
+    box.appendChild(div);
+  });
+}
 function handleRoomClick(e){let act=e.target.dataset.act;if(!act)return;let a=apt();let roomId=e.target.dataset.room;let r=a.rooms.find(x=>x.id===roomId);
 
 if(act==='move-up'){let i=a.rooms.findIndex(x=>x.id===roomId);if(i>0){[a.rooms[i-1],a.rooms[i]]=[a.rooms[i],a.rooms[i-1]];save();renderRooms();showTab('rooms')}return;}
@@ -57,6 +121,22 @@ function photoPages(title,photos){
   }
   return h;
 }
+
+function removeChargeFromPrintIfEntry(){
+  if(!isEtatEntree()) return;
+  let pa=document.querySelector('#printArea');
+  if(!pa) return;
+  pa.querySelectorAll('table').forEach(table=>{
+    let headerCells=Array.from(table.querySelectorAll('thead th'));
+    let idx=headerCells.findIndex(th=>/à\s*charge/i.test(th.textContent||''));
+    if(idx>=0){
+      table.querySelectorAll('tr').forEach(tr=>{
+        if(tr.children[idx]) tr.children[idx].remove();
+      });
+    }
+  });
+}
+
 function printDoc(){
   let a=apt();
   if(!a)return alert('Aucun appartement sélectionné.');
