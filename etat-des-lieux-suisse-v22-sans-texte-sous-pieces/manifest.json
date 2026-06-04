@@ -1,0 +1,1 @@
+{"name": "État des lieux Suisse", "short_name": "EDL Suisse", "start_url": "./index.html", "scope": "./", "display": "standalone", "background_color": "#f4f6f8", "theme_color": "#12324a", "icons": [{"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml"}]}

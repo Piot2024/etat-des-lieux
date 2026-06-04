@@ -1,0 +1,1 @@
+V22: signature compacte conservée + suppression du petit texte sous chaque pièce dans le PDF.
