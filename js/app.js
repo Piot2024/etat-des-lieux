@@ -92,10 +92,14 @@ p{margin:.8mm 0}
 </style>`;
 
   document.body.innerHTML = css + h;
-  window.print();
-  document.body.innerHTML = origBody;
-  // Réattacher les événements après restauration
-  location.reload();
+
+  // Safari : window.print() est asynchrone, on écoute afterprint pour restaurer
+  function restorePage(){
+    window.removeEventListener('afterprint', restorePage);
+    location.reload();
+  }
+  window.addEventListener('afterprint', restorePage);
+  setTimeout(() => window.print(), 300);
 }
 
 function exportAll(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='etat-des-lieux-suisse-donnees.json';a.click();URL.revokeObjectURL(url)}
