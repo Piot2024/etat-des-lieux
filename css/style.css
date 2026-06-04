@@ -310,16 +310,3 @@ border-bottom:.3pt solid #111;
 @media(max-width:900px){
   .room .row button{flex:1 1 auto}
 }
-
-.movebtn{
-  background:#fff!important;
-  color:#17202a!important;
-  border:1px solid #cbd5df!important;
-}
-.room .row{
-  gap:6px!important;
-  flex-wrap:wrap!important;
-}
-@media(max-width:900px){
-  .room .row button{flex:1 1 auto}
-}

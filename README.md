@@ -1,1 +1,1 @@
-V27: vrai correctif déplacement pièces. Le code utilise data-act/data-room; boutons ↑ Monter / ↓ Descendre branchés sur handleRoomClick. Stockage local inchangé.
+V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.
