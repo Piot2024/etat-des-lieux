@@ -24,8 +24,8 @@ function renderKeys(){let a=apt(),box=$("#keyList");box.innerHTML="";a.keys.forE
 function addKey(){let a=apt();if(!a)return alert('Crée ou sélectionne un appartement.');a.keys.push({id:uid(),type:'',qty:'',notes:''});save();renderKeys();showTab('keys')}
 
 function isEtatEntree(){
-  let a = apt();
-  let t = String((a && a.type) || 'Entrée').toLowerCase();
+  let a=apt();
+  let t=String((a&&a.type)||'Entrée').toLowerCase();
   return t.includes('entrée') || t.includes('entree');
 }
 
@@ -38,9 +38,10 @@ function renderRooms(){
     r.photos=r.photos||[];
     let div=document.createElement('div');
     div.className='room';
-
     div.innerHTML=`<div class=row>
       <input class=room-title value="${esc(r.name)}">
+      <button type=button class="light" data-act=move-up data-room="${r.id}">↑</button>
+      <button type=button class="light" data-act=move-down data-room="${r.id}">↓</button>
       <button type=button class=danger data-act=remove-room data-room="${r.id}">Supprimer pièce</button>
     </div>
     <table>
@@ -91,7 +92,6 @@ function renderRooms(){
       readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});
       e.target.value='';
     };
-
     photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});
     box.appendChild(div);
   });
@@ -121,22 +121,6 @@ function photoPages(title,photos){
   }
   return h;
 }
-
-function removeChargeFromPrintIfEntry(){
-  if(!isEtatEntree()) return;
-  let pa=document.querySelector('#printArea');
-  if(!pa) return;
-  pa.querySelectorAll('table').forEach(table=>{
-    let headerCells=Array.from(table.querySelectorAll('thead th'));
-    let idx=headerCells.findIndex(th=>/à\s*charge/i.test(th.textContent||''));
-    if(idx>=0){
-      table.querySelectorAll('tr').forEach(tr=>{
-        if(tr.children[idx]) tr.children[idx].remove();
-      });
-    }
-  });
-}
-
 function printDoc(){
   let a=apt();
   if(!a)return alert('Aucun appartement sélectionné.');
@@ -180,7 +164,8 @@ p{margin:.8mm 0}`;
   let h=`<div class="doc"><div class="cover"><div class="header"><div><div class="brand">Procès-verbal d'état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d'entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;
 
   a.rooms.forEach(r=>{
-    h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table><tr><th style="width:19%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th><th style="width:18%">À charge de</th><th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td>${isEtatEntree()?'':`<td>${esc(e.charge)}</td>`}<td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
+    let entree=isEtatEntree();
+    h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table><tr><th style="width:22%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th>${entree?'':'<th style="width:18%">À charge de</th>'}<th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td>${entree?'':`<td>${esc(e.charge)}</td>`}<td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
     if(r.photos&&r.photos.length){
       for(let i=0;i<r.photos.length;i+=9){
         let batch=r.photos.slice(i,i+9);
@@ -278,15 +263,15 @@ function importAll(file){let r=new FileReader();r.onload=e=>{try{db=JSON.parse(e
 function deleteSelected(){let a=apt();if(!a)return;if(confirm('Supprimer ce dossier ?')){db.apartments=db.apartments.filter(x=>x.id!==a.id);db.selectedId=db.apartments[0]?.id||null;save();renderAll()}}
 document.addEventListener('DOMContentLoaded',async()=>{if('serviceWorker' in navigator){try{let regs=await navigator.serviceWorker.getRegistrations();for(let r of regs){await r.unregister()}let keys=await caches.keys();for(let k of keys){await caches.delete(k)}}catch(e){}}load();renderAll();$('#roomList').addEventListener('click',handleRoomClick);$('#btnNewApartment').onclick=newApartment;$('#btnAddTenant').onclick=addTenant;$('#btnAddKey').onclick=addKey;$('#btnAddRoom').onclick=addRoom;$('#btnAddTenantInside').onclick=addTenant;$('#btnAddKeyInside').onclick=addKey;$('#btnAddRoomInside').onclick=addRoom;$('#btnSave').onclick=()=>{save();alert('Sauvegardé')};$('#btnPrint').onclick=printDoc;$('#btnExport').onclick=exportAll;$('#btnDelete').onclick=deleteSelected;$('#searchInput').oninput=renderList;$('#fileImport').onchange=e=>{if(e.target.files[0])importAll(e.target.files[0])};$$('.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));$$('[data-clear]').forEach(b=>b.onclick=()=>clearSig(b.dataset.clear))})
 
-function refreshRoomsOnTypeChange(){
+function refreshRoomsWhenTypeChanges(){
   document.addEventListener('change', function(e){
     if(e.target && e.target.matches('[data-field="type"]')){
       try{ save(); renderRooms(); }catch(err){}
     }
   });
 }
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', refreshRoomsOnTypeChange);
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', refreshRoomsWhenTypeChanges);
 }else{
-  refreshRoomsOnTypeChange();
+  refreshRoomsWhenTypeChanges();
 }
