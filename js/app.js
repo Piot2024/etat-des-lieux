@@ -56,13 +56,13 @@ function printDoc(){let a=apt();if(!a)return alert('Aucun appartement sélection
   let css = `<style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,Helvetica,sans-serif;font-size:7pt;line-height:1.15;color:#111;background:#fff;width:100%}
-@page{size:A4 portrait;margin:10mm 8mm}
+@page{size:A4 landscape;margin:8mm 10mm}
 .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:.8pt solid #111;padding-bottom:1.6mm;margin-bottom:2mm}
 .brand{font-size:5.6pt;font-weight:bold;text-transform:uppercase;letter-spacing:.2px;color:#555}
 .title{font-size:13pt;line-height:1;font-weight:bold;margin-top:.8mm}
 .subtitle{font-size:6.2pt;color:#555;margin-top:.4mm}
 .typebox{border:.7pt solid #111;padding:1.5mm 2.2mm;text-align:center;font-size:7.5pt;font-weight:bold;text-transform:uppercase;min-width:24mm}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm;margin-bottom:1.8mm}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1.5mm;margin-bottom:1.8mm}
 .info-box{border:.45pt solid #999;padding:1.1mm;overflow:hidden}
 .label{font-size:5.1pt;text-transform:uppercase;color:#555;font-weight:bold;margin-bottom:.3mm}
 .value{font-size:6.5pt;color:#111;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
