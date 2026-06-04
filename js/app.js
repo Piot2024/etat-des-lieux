@@ -42,7 +42,7 @@ function photoGrid(c,arr,cb){c.innerHTML='';arr.forEach(p=>{let d=document.creat
 function initSignatures(){let a=apt();if(!a)return;['tenantSignature','ownerSignature'].forEach(s=>{let c=$('#'+s);if(!c)return;let ctx=c.getContext('2d');ctx.lineWidth=3;ctx.lineCap='round';ctx.clearRect(0,0,c.width,c.height);if(a.signatures[s]){let im=new Image();im.onload=()=>ctx.drawImage(im,0,0,c.width,c.height);im.src=a.signatures[s]}let drawing=false;function pos(ev){let r=c.getBoundingClientRect(),t=ev.touches?ev.touches[0]:ev;return{x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)}}function start(ev){drawing=true;let p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);ev.preventDefault()}function move(ev){if(!drawing)return;let p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();a.signatures[s]=c.toDataURL('image/png');save();ev.preventDefault()}c.onmousedown=start;c.onmousemove=move;c.onmouseup=()=>drawing=false;c.onmouseleave=()=>drawing=false;c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=()=>drawing=false})}
 function clearSig(s){apt().signatures[s]='';save();initSignatures()}
 function photoPages(title,photos){
-  if(!photos || !photos.length) return "";
+  if(!photos||!photos.length)return"";
   let h="";
   for(let i=0;i<photos.length;i+=18){
     let batch=photos.slice(i,i+18);
@@ -50,7 +50,68 @@ function photoPages(title,photos){
   }
   return h;
 }
-function printDoc(){let a=apt();if(!a)return alert('Aucun appartement sélectionné.');let h=`<div class="doc"><div class="cover"><div class="header"><div><div class="brand">Procès-verbal d’état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d’entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table class="simple-table"><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table class="simple-table"><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Toute réserve ou contestation doit être inscrite avant signature. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;a.rooms.forEach(r=>{h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table class="room-table"><tr><th style="width:19%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th><th style="width:18%">À charge de</th><th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td><td>${esc(e.charge)}</td><td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;h+=photoPages(r.name,r.photos)});h+=`<div class="sign-page"><div class="header"><div><div class="brand">Clôture du procès-verbal</div><div class="title">Observations et signatures</div></div><div class="typebox">${esc(a.type)}</div></div><div class="section"><div class="section-title">Observations générales / réserves</div><div class="info-box">${esc(a.notes).replace(/\n/g,'<br>')||'&nbsp;'}</div></div>`;h+=photoPages('Photos générales',a.photos);h+=`<div class="section"><div class="section-title">Signatures des parties</div><div class="legal">Les parties confirment avoir pris connaissance du présent procès-verbal. Les réserves éventuelles doivent être mentionnées ci-dessus avant signature. Chaque partie reçoit un exemplaire.</div><div class="sign-grid"><div class="sign-box"><b>Locataire(s) / colocataire(s)</b>${a.signatures.tenantSignature?`<br><img src="${a.signatures.tenantSignature}">`:`<div class="sign-line">Signature / date</div>`}</div><div class="sign-box"><b>Régie / propriétaire</b>${a.signatures.ownerSignature?`<br><img src="${a.signatures.ownerSignature}">`:`<div class="sign-line">Signature / date</div>`}</div></div></div></div></div>`;$('#printArea').innerHTML=h;setTimeout(()=>window.print(),100)}
+
+function printDoc(){
+  let a=apt();
+  if(!a)return alert('Aucun appartement sélectionné.');
+
+  // Générer le HTML complet du document (sans découpage en pages)
+  let body="";
+
+  // === COVER ===
+  body+=`<div class="cover"><div class="header"><div><div class="brand">Procès-verbal d'état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d'entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table class="simple-table"><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table class="simple-table"><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Toute réserve ou contestation doit être inscrite avant signature. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;
+
+  // === PIÈCES ===
+  a.rooms.forEach(r=>{
+    body+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table class="room-table"><tr><th style="width:18%">Élément</th><th style="width:11%">État</th><th>Observation / défaut</th><th style="width:17%">À charge de</th><th style="width:7%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td><td>${esc(e.charge)}</td><td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
+    body+=photoPages(r.name,r.photos);
+  });
+
+  // === PAGE SIGNATURES ===
+  body+=`<div class="sign-page"><div class="header"><div><div class="brand">Clôture du procès-verbal</div><div class="title">Observations et signatures</div></div><div class="typebox">${esc(a.type)}</div></div><div class="section"><div class="section-title">Observations générales / réserves</div><div class="info-box">${esc(a.notes).replace(/\n/g,'<br>')||'&nbsp;'}</div></div>`;
+  body+=photoPages('Photos générales',a.photos);
+  body+=`<div class="section"><div class="section-title">Signatures des parties</div><div class="legal">Les parties confirment avoir pris connaissance du présent procès-verbal. Les réserves éventuelles doivent être mentionnées ci-dessus avant signature. Chaque partie reçoit un exemplaire.</div><div class="sign-grid"><div class="sign-box"><b>Locataire(s) / colocataire(s)</b>${a.signatures.tenantSignature?`<br><img src="${a.signatures.tenantSignature}">`:`<div class="sign-line">Signature / date</div>`}</div><div class="sign-box"><b>Régie / propriétaire</b>${a.signatures.ownerSignature?`<br><img src="${a.signatures.ownerSignature}">`:`<div class="sign-line">Signature / date</div>`}</div></div></div></div>`;
+
+  // === DÉCOUPAGE EN PAGES PHYSIQUES ===
+  // On injecte tout dans un conteneur temporaire hors écran,
+  // puis on mesure et on coupe en blocs de 190mm (hauteur utile par page en paysage)
+  // Unité : 1mm = 3.7795px à 96dpi
+  const MM_TO_PX = 3.7795;
+  const PAGE_H_MM = 174; // hauteur utile par page (190mm - padding 8mm*2 + marge interne)
+  const PAGE_H_PX = PAGE_H_MM * MM_TO_PX;
+
+  // Créer conteneur temporaire pour mesure
+  let measureDiv = document.createElement('div');
+  measureDiv.style.cssText = 'position:fixed;top:-9999px;left:0;width:261mm;font-family:Arial,Helvetica,sans-serif;font-size:7.2pt;line-height:1.15;visibility:hidden;';
+  measureDiv.innerHTML = body;
+  document.body.appendChild(measureDiv);
+
+  // Récupérer les enfants directs (cover, room-page, sign-page, photo-page)
+  let nodes = Array.from(measureDiv.children);
+  let pages = [];
+  let currentPageHTML = '';
+  let currentH = 0;
+
+  nodes.forEach(node => {
+    let h = node.getBoundingClientRect().height;
+    if(currentH > 0 && currentH + h > PAGE_H_PX){
+      pages.push(currentPageHTML);
+      currentPageHTML = node.outerHTML;
+      currentH = h;
+    } else {
+      currentPageHTML += node.outerHTML;
+      currentH += h;
+    }
+  });
+  if(currentPageHTML) pages.push(currentPageHTML);
+  document.body.removeChild(measureDiv);
+
+  // Générer le HTML final avec .print-page par page
+  let finalHTML = pages.map(p => `<div class="print-page">${p}</div>`).join('');
+  $('#printArea').innerHTML = finalHTML;
+  setTimeout(()=>window.print(), 150);
+}
+
 function exportAll(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='etat-des-lieux-suisse-donnees.json';a.click();URL.revokeObjectURL(url)}
 function importAll(file){let r=new FileReader();r.onload=e=>{try{db=JSON.parse(e.target.result);migrate();save();renderAll();alert('Import terminé.')}catch(err){alert('Fichier invalide.')}};r.readAsText(file)}
 function deleteSelected(){let a=apt();if(!a)return;if(confirm('Supprimer ce dossier ?')){db.apartments=db.apartments.filter(x=>x.id!==a.id);db.selectedId=db.apartments[0]?.id||null;save();renderAll()}}

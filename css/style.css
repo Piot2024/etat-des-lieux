@@ -6,40 +6,59 @@
 
 
 @media print{
-@page{size:A4 landscape;margin:8mm}
+@page{
+  size:A4 portrait;
+  margin:0;
+}
 html,body{
   background:#fff!important;
-  width:297mm!important;
-  overflow:visible!important;
   -webkit-print-color-adjust:exact;
   print-color-adjust:exact;
+  margin:0!important;
+  padding:0!important;
 }
 body>*:not(#printArea){display:none!important}
 #printArea{
   display:block!important;
-  width:281mm!important;
-  max-width:281mm!important;
-  margin:0 auto!important;
+  margin:0!important;
   padding:0!important;
   background:#fff!important;
-  color:#111!important;
-  font-family:Arial,Helvetica,sans-serif!important;
-  font-size:7.2pt!important;
-  line-height:1.15!important;
-  overflow:visible!important;
-}
-.doc,.cover,.room-page,.photo-page,.sign-page{
-  width:281mm!important;
-  max-width:281mm!important;
-  min-width:0!important;
-  overflow:visible!important;
 }
 
-.cover{
-  break-after:auto!important;
-  page-break-after:auto!important;
-  margin:0 0 2mm 0!important;
-  padding:0!important;
+/* Chaque .print-page est une feuille A4 paysage rendue dans un portrait */
+/* A4 portrait = 210mm × 297mm
+   Zone utile paysage = 277mm large × 190mm haut (marges 10mm)
+   On rotate le bloc de 277×190 → devient 190×277 puis centré dans 210×297 */
+.print-page{
+  width:277mm;
+  height:190mm;
+  padding:8mm;
+  box-sizing:border-box;
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  /* Centrage dans la feuille portrait après rotation :
+     translateX = (210mm - 277mm)/2 = -33.5mm → mais après rotate
+     On place origin top-left, rotate 90deg, puis translate */
+  transform-origin:top left;
+  transform:rotate(90deg) translate(0, -210mm);
+  margin-left:10mm;
+  page-break-after:always;
+  break-after:page;
+  color:#111;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:7.2pt;
+  line-height:1.15;
+}
+.print-page:last-child{
+  page-break-after:avoid;
+  break-after:avoid;
+}
+
+/* Contenu à l'intérieur d'une page */
+.print-page .doc-content{
+  width:261mm;
+  max-width:261mm;
 }
 
 .header{
@@ -51,7 +70,7 @@ body>*:not(#printArea){display:none!important}
   margin-bottom:2mm;
 }
 .brand{font-size:5.6pt;font-weight:bold;text-transform:uppercase;letter-spacing:.2px;color:#555}
-.title{font-size:14pt;line-height:1;font-weight:bold;margin-top:.8mm}
+.title{font-size:13pt;line-height:1;font-weight:bold;margin-top:.8mm}
 .subtitle{font-size:6.2pt;color:#555;margin-top:.4mm}
 .typebox{
   border:.7pt solid #111;
@@ -71,7 +90,6 @@ body>*:not(#printArea){display:none!important}
 .info-box{
   border:.45pt solid #999;
   padding:1.1mm;
-  min-height:0!important;
   overflow:hidden;
 }
 .label{
@@ -89,8 +107,7 @@ body>*:not(#printArea){display:none!important}
   overflow-wrap:anywhere;
 }
 .section{
-  margin:1.6mm 0!important;
-  break-inside:avoid;
+  margin:1.6mm 0;
 }
 .section-title{
   font-size:7.6pt;
@@ -101,36 +118,27 @@ body>*:not(#printArea){display:none!important}
   margin-bottom:.6mm;
 }
 .simple-table,.room-table{
-  width:281mm!important;
-  max-width:281mm!important;
+  width:100%;
   border-collapse:collapse;
-  font-size:5.9pt;
+  font-size:6pt;
   table-layout:fixed;
 }
 .simple-table th,.room-table th{
   border:.4pt solid #777;
   background:#f2f2f2;
-  padding:.45mm;
+  padding:.5mm;
   text-align:left;
   font-weight:bold;
 }
 .simple-table td,.room-table td{
   border:.4pt solid #aaa;
-  padding:.45mm;
+  padding:.5mm;
   vertical-align:top;
   word-break:break-word;
   overflow-wrap:anywhere;
-  max-width:0;
 }
-
 .room-page{
-  break-before:auto!important;
-  page-break-before:auto!important;
-  break-after:auto!important;
-  page-break-after:auto!important;
-  break-inside:auto!important;
-  margin:1.8mm 0!important;
-  padding:0!important;
+  margin:1.8mm 0;
 }
 .room-head{
   display:flex;
@@ -140,13 +148,6 @@ body>*:not(#printArea){display:none!important}
   padding-bottom:.45mm;
 }
 .room-name{font-size:9pt;font-weight:bold}
-.room-meta{
-  font-size:4.9pt;
-  color:#555;
-  text-align:right;
-  max-width:100mm;
-  overflow-wrap:anywhere;
-}
 .room-note{
   margin-top:.8mm;
   border:.4pt solid #aaa;
@@ -155,19 +156,9 @@ body>*:not(#printArea){display:none!important}
   font-size:5.5pt;
   overflow-wrap:anywhere;
 }
-.footer{
-  font-size:5pt;
-  color:#666;
-  border-top:.3pt solid #aaa;
-  margin-top:.7mm;
-  padding-top:.35mm;
-}
-
 .photo-page{
-  break-before:page!important;
-  page-break-before:always!important;
-  margin:0!important;
-  padding:0!important;
+  margin:0;
+  padding:0;
 }
 .photo-title{
   font-size:9pt;
@@ -180,23 +171,18 @@ body>*:not(#printArea){display:none!important}
   display:grid;
   grid-template-columns:repeat(6,1fr);
   gap:2mm;
-  width:281mm!important;
-  max-width:281mm!important;
 }
 .photo-box{
   border:.4pt solid #888;
   padding:.7mm;
-  break-inside:avoid;
-  page-break-inside:avoid;
-  height:38mm;
+  height:36mm;
   overflow:hidden;
 }
 .photo-box img{
   width:100%;
-  height:30mm;
+  height:28mm;
   object-fit:contain;
   display:block;
-  background:#fff;
 }
 .photo-caption{
   font-size:5pt;
@@ -208,14 +194,8 @@ body>*:not(#printArea){display:none!important}
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
 .sign-page{
-  break-before:auto!important;
-  page-break-before:auto!important;
-  break-after:auto!important;
-  page-break-after:auto!important;
-  margin-top:2mm!important;
-  padding:0!important;
+  margin-top:2mm;
 }
 .sign-grid{
   display:grid;
@@ -249,9 +229,7 @@ body>*:not(#printArea){display:none!important}
   margin-top:1mm;
   overflow-wrap:anywhere;
 }
-
-p{margin:.8mm 0!important}
-h1,h2,h3{break-after:avoid}
+p{margin:.8mm 0}
 }
 
 .offline-indicator{position:fixed;right:10px;bottom:10px;background:#12324a;color:white;padding:6px 9px;border-radius:8px;font-size:12px;z-index:9999;opacity:.9}@media print{.offline-indicator{display:none!important}}
