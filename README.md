@@ -1,1 +1,1 @@
-V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.
+V22: signature compacte conservée + suppression du petit texte sous chaque pièce dans le PDF.
