@@ -1,1 +1,1 @@
-V33: Type Entrée = colonne À charge supprimée dans les pièces et le PDF. Type Sortie = colonne À charge affichée. Calibrage PDF conservé.
+V34: Entrée = suppression forcée de la colonne À charge dans écran + PDF. Sortie = colonne conservée.
