@@ -6,10 +6,10 @@
 
 
 @media print{
-@page{size:A4 landscape;margin:9mm}
+@page{size:A4 portrait;margin:6mm}
 html,body{
   background:#fff!important;
-  width:297mm!important;
+  width:100%!important;
   overflow:visible!important;
   -webkit-print-color-adjust:exact;
   print-color-adjust:exact;
@@ -17,20 +17,20 @@ html,body{
 body>*:not(#printArea){display:none!important}
 #printArea{
   display:block!important;
-  width:278mm!important;
-  max-width:278mm!important;
+  width:100%!important;
+  max-width:100%!important;
   margin:0 auto!important;
   padding:0!important;
   background:#fff!important;
   color:#111!important;
   font-family:Arial,Helvetica,sans-serif!important;
-  font-size:6.5pt!important;
+  font-size:7pt!important;
   line-height:1.1!important;
   overflow:visible!important;
 }
 .doc,.cover,.room-page,.photo-page,.sign-page{
-  width:278mm!important;
-  max-width:278mm!important;
+  width:100%!important;
+  max-width:100%!important;
   min-width:0!important;
   overflow:visible!important;
 }
@@ -61,7 +61,7 @@ body>*:not(#printArea){display:none!important}
   font-size:7.5pt;
   font-weight:bold;
   text-transform:uppercase;
-  min-width:24mm;
+  min-width:auto;
 }
 .info-grid{
   display:grid;
@@ -102,8 +102,8 @@ body>*:not(#printArea){display:none!important}
   margin-bottom:.6mm;
 }
 .simple-table,.room-table{
-  width:278mm!important;
-  max-width:278mm!important;
+  width:100%!important;
+  max-width:100%!important;
   border-collapse:collapse;
   font-size:5.7pt;
   table-layout:fixed;
@@ -146,7 +146,7 @@ body>*:not(#printArea){display:none!important}
   font-size:4.9pt;
   color:#555;
   text-align:right;
-  max-width:70mm;
+  max-width:auto;
   overflow-wrap:anywhere;
 }
 .room-note{
@@ -184,8 +184,8 @@ body>*:not(#printArea){display:none!important}
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:2mm;
-  width:278mm!important;
-  max-width:278mm!important;
+  width:100%!important;
+  max-width:100%!important;
 }
 .photo-box{
   border:.4pt solid #888;
