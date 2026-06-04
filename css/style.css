@@ -310,3 +310,13 @@ border-bottom:.3pt solid #111;
 @media(max-width:900px){
   .room .row button{flex:1 1 auto}
 }
+
+@media print{
+  #printArea,
+  .doc,.cover,.room-page,.photo-page,.sign-page,
+  .simple-table,.room-table,
+  .photo-grid-print{
+    width:100% !important;
+    max-width:100% !important;
+  }
+}
