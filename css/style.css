@@ -6,11 +6,10 @@
 
 
 @media print{
-@page{size:A4 portrait;margin:10mm 8mm}
+@page{size:A4 portrait;margin:9mm}
 html,body{
   background:#fff!important;
-  margin:0!important;
-  padding:0!important;
+  width:210mm!important;
   overflow:visible!important;
   -webkit-print-color-adjust:exact;
   print-color-adjust:exact;
@@ -18,28 +17,32 @@ html,body{
 body>*:not(#printArea){display:none!important}
 #printArea{
   display:block!important;
-  width:100%!important;
-  max-width:100%!important;
-  margin:0!important;
+  width:186mm!important;
+  max-width:186mm!important;
+  margin:0 auto!important;
   padding:0!important;
   background:#fff!important;
   color:#111!important;
   font-family:Arial,Helvetica,sans-serif!important;
   font-size:7pt!important;
-  line-height:1.15!important;
+  line-height:1.1!important;
   overflow:visible!important;
 }
 .doc,.cover,.room-page,.photo-page,.sign-page{
-  width:100%!important;
-  max-width:100%!important;
+  width:186mm!important;
+  max-width:186mm!important;
+  min-width:0!important;
   overflow:visible!important;
 }
+
+/* Page de début compacte, sans page blanche forcée */
 .cover{
   break-after:auto!important;
   page-break-after:auto!important;
   margin:0 0 2mm 0!important;
   padding:0!important;
 }
+
 .header{
   display:flex;
   justify-content:space-between;
@@ -69,6 +72,7 @@ body>*:not(#printArea){display:none!important}
 .info-box{
   border:.45pt solid #999;
   padding:1.1mm;
+  min-height:0!important;
   overflow:hidden;
 }
 .label{
@@ -98,8 +102,8 @@ body>*:not(#printArea){display:none!important}
   margin-bottom:.6mm;
 }
 .simple-table,.room-table{
-  width:100%!important;
-  max-width:100%!important;
+  width:186mm!important;
+  max-width:186mm!important;
   border-collapse:collapse;
   font-size:5.7pt;
   table-layout:fixed;
@@ -107,17 +111,20 @@ body>*:not(#printArea){display:none!important}
 .simple-table th,.room-table th{
   border:.4pt solid #777;
   background:#f2f2f2;
-  padding:.4mm;
+  padding:.35mm;
   text-align:left;
   font-weight:bold;
 }
 .simple-table td,.room-table td{
   border:.4pt solid #aaa;
-  padding:.4mm;
+  padding:.35mm;
   vertical-align:top;
   word-break:break-word;
   overflow-wrap:anywhere;
+  max-width:0;
 }
+
+/* IMPORTANT: les pièces ne commencent plus sur une nouvelle page si pas besoin */
 .room-page{
   break-before:auto!important;
   page-break-before:auto!important;
@@ -139,6 +146,7 @@ body>*:not(#printArea){display:none!important}
   font-size:4.9pt;
   color:#555;
   text-align:right;
+  max-width:70mm;
   overflow-wrap:anywhere;
 }
 .room-note{
@@ -156,6 +164,9 @@ body>*:not(#printArea){display:none!important}
   margin-top:.7mm;
   padding-top:.35mm;
 }
+
+/* Pages photos uniquement si la fonction JS les crée.
+   Si aucune photo: aucune page, aucun blanc. */
 .photo-page{
   break-before:page!important;
   page-break-before:always!important;
@@ -173,7 +184,8 @@ body>*:not(#printArea){display:none!important}
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:2mm;
-  width:100%!important;
+  width:186mm!important;
+  max-width:186mm!important;
 }
 .photo-box{
   border:.4pt solid #888;
@@ -200,9 +212,13 @@ body>*:not(#printArea){display:none!important}
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
+/* Signatures collées après le contenu, pas une page blanche */
 .sign-page{
   break-before:auto!important;
   page-break-before:auto!important;
+  break-after:auto!important;
+  page-break-after:auto!important;
   margin-top:2mm!important;
   padding:0!important;
 }
@@ -238,6 +254,8 @@ body>*:not(#printArea){display:none!important}
   margin-top:1mm;
   overflow-wrap:anywhere;
 }
+
+/* compactage général */
 p{margin:.8mm 0!important}
 h1,h2,h3{break-after:avoid}
 }
