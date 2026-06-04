@@ -26,6 +26,22 @@ function renderRooms(){let a=apt(),box=$("#roomList");box.innerHTML="";a.rooms.f
 $('.room-title',div).oninput=e=>{r.name=e.target.value;save()};$('.rnotes',div).oninput=e=>{r.notes=e.target.value;save()};let tb=$('tbody',div);r.elements.forEach(el=>{let tr=document.createElement('tr');tr.innerHTML=`<td><input data-el=name value="${esc(el.name)}"></td><td><select data-el=state><option>Bon</option><option>Usure normale</option><option>Moyen</option><option>Mauvais</option><option>Défectueux</option><option>À réparer</option><option>Non contrôlé</option></select></td><td><textarea data-el=observation>${esc(el.observation)}</textarea></td><td><select data-el=charge><option>À déterminer</option><option>Locataire / colocataire</option><option>Bailleur / régie</option><option>Usure normale</option><option>Non applicable</option></select></td><td><input data-el=photoNo value="${esc(el.photoNo)}"></td><td><button type=button class=danger data-act=remove-element data-room="${r.id}" data-elid="${el.id}">Supprimer</button></td>`;$('[data-el=state]',tr).value=el.state;$('[data-el=charge]',tr).value=el.charge;$$('[data-el]',tr).forEach(inp=>{inp.oninput=()=>{el[inp.dataset.el]=inp.value;save()};inp.onchange=inp.oninput});tb.appendChild(tr)});
 $('.room-file-input',div).onchange=e=>{let files=e.target.files;if(!files||!files.length)return;readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});e.target.value=''};photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});box.appendChild(div)})}
 function handleRoomClick(e){let act=e.target.dataset.act;if(!act)return;let a=apt();let r=a.rooms.find(x=>x.id===e.target.dataset.room);if(act==='add-element'&&r){r.elements.push(newElement(''));save();renderRooms();showTab('rooms')}if(act==='remove-room'){a.rooms=a.rooms.filter(x=>x.id!==e.target.dataset.room);save();renderRooms();showTab('rooms')}if(act==='remove-element'&&r){r.elements=r.elements.filter(x=>x.id!==e.target.dataset.elid);save();renderRooms();showTab('rooms')}}
+
+function moveRoomById(roomId, direction){
+  let a=apt();
+  if(!a || !a.rooms) return;
+  let idx=a.rooms.findIndex(x=>x.id===roomId);
+  if(idx<0) return;
+  let target = direction === "up" ? idx-1 : idx+1;
+  if(target < 0 || target >= a.rooms.length) return;
+  let temp = a.rooms[target];
+  a.rooms[target] = a.rooms[idx];
+  a.rooms[idx] = temp;
+  save();
+  renderRooms();
+  showTab("rooms");
+}
+
 function addRoom(){let a=apt();if(!a)return alert('Crée ou sélectionne un appartement.');a.rooms.push(newRoom());save();renderRooms();showTab('rooms')}
 function compressImage(file,maxSide=1200,quality=.72){return new Promise(resolve=>{let reader=new FileReader();reader.onload=ev=>{let img=new Image();img.onload=()=>{let w=img.width,h=img.height;let ratio=Math.min(1,maxSide/Math.max(w,h));let canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(w*ratio));canvas.height=Math.max(1,Math.round(h*ratio));let ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);let data=canvas.toDataURL('image/jpeg',quality);resolve({id:uid(),src:data,caption:file.name||''})};img.onerror=()=>resolve(null);img.src=ev.target.result};reader.onerror=()=>resolve(null);reader.readAsDataURL(file)})}
 async function readPhotosCompressed(files,target,cb){let arr=Array.from(files||[]);for(let f of arr){let p=await compressImage(f);if(p)target.push(p)}cb()}
@@ -47,3 +63,23 @@ function exportAll(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'applic
 function importAll(file){let r=new FileReader();r.onload=e=>{try{db=JSON.parse(e.target.result);migrate();save();renderAll();alert('Import terminé.')}catch(err){alert('Fichier invalide.')}};r.readAsText(file)}
 function deleteSelected(){let a=apt();if(!a)return;if(confirm('Supprimer ce dossier ?')){db.apartments=db.apartments.filter(x=>x.id!==a.id);db.selectedId=db.apartments[0]?.id||null;save();renderAll()}}
 document.addEventListener('DOMContentLoaded',async()=>{if('serviceWorker' in navigator){try{let regs=await navigator.serviceWorker.getRegistrations();for(let r of regs){await r.unregister()}let keys=await caches.keys();for(let k of keys){await caches.delete(k)}}catch(e){}}load();renderAll();$('#roomList').addEventListener('click',handleRoomClick);$('#btnNewApartment').onclick=newApartment;$('#btnAddTenant').onclick=addTenant;$('#btnAddKey').onclick=addKey;$('#btnAddRoom').onclick=addRoom;$('#btnAddTenantInside').onclick=addTenant;$('#btnAddKeyInside').onclick=addKey;$('#btnAddRoomInside').onclick=addRoom;$('#btnSave').onclick=()=>{save();alert('Sauvegardé')};$('#btnPrint').onclick=printDoc;$('#btnExport').onclick=exportAll;$('#btnDelete').onclick=deleteSelected;$('#searchInput').oninput=renderList;$('#fileImport').onchange=e=>{if(e.target.files[0])importAll(e.target.files[0])};$$('.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));$$('[data-clear]').forEach(b=>b.onclick=()=>clearSig(b.dataset.clear))})
+
+function handleRoomAction(e){
+  if(!e.target || !e.target.dataset) return;
+  if(e.target.dataset.action==="move-room-up"){
+    moveRoomById(e.target.dataset.roomId,"up");
+    return;
+  }
+  if(e.target.dataset.action==="move-room-down"){
+    moveRoomById(e.target.dataset.roomId,"down");
+    return;
+  }
+}
+
+
+window.addEventListener("load",function(){
+  var rl=document.querySelector("#roomList");
+  if(rl && typeof handleRoomAction==="function"){
+    rl.addEventListener("click",handleRoomAction);
+  }
+});

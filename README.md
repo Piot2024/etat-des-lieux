@@ -1,1 +1,1 @@
-V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.
+V26: déplacement des pièces corrigé depuis les fichiers envoyés. Boutons ↑ Monter / ↓ Descendre ajoutés sans changer le stockage local.
