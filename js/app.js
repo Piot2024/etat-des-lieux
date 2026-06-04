@@ -50,55 +50,118 @@ function photoPages(title,photos){
   }
   return h;
 }
-function printDoc(){let a=apt();if(!a)return alert('Aucun appartement sélectionné.');let h=`<div class="doc"><div class="cover"><div class="header"><div><div class="brand">Procès-verbal d’état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d’entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table class="simple-table"><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table class="simple-table"><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Toute réserve ou contestation doit être inscrite avant signature. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;a.rooms.forEach(r=>{h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table class="room-table"><tr><th style="width:19%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th><th style="width:18%">À charge de</th><th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td><td>${esc(e.charge)}</td><td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;h+=photoPages(r.name,r.photos)});h+=`<div class="sign-page"><div class="header"><div><div class="brand">Clôture du procès-verbal</div><div class="title">Observations et signatures</div></div><div class="typebox">${esc(a.type)}</div></div><div class="section"><div class="section-title">Observations générales / réserves</div><div class="info-box">${esc(a.notes).replace(/\n/g,'<br>')||'&nbsp;'}</div></div>`;h+=photoPages('Photos générales',a.photos);h+=`<div class="section"><div class="section-title">Signatures des parties</div><div class="legal">Les parties confirment avoir pris connaissance du présent procès-verbal. Les réserves éventuelles doivent être mentionnées ci-dessus avant signature. Chaque partie reçoit un exemplaire.</div><div class="sign-grid"><div class="sign-box"><b>Locataire(s) / colocataire(s)</b>${a.signatures.tenantSignature?`<br><img src="${a.signatures.tenantSignature}">`:`<div class="sign-line">Signature / date</div>`}</div><div class="sign-box"><b>Régie / propriétaire</b>${a.signatures.ownerSignature?`<br><img src="${a.signatures.ownerSignature}">`:`<div class="sign-line">Signature / date</div>`}</div></div></div></div></div>`;
-  // Générer PDF directement avec jsPDF + html2canvas
-  let pa = document.getElementById('printArea');
-  pa.innerHTML = h;
-  pa.style.cssText = 'display:block;position:fixed;top:0;left:-9999px;width:190mm;font-family:Arial,Helvetica,sans-serif;font-size:6.5pt;line-height:1.15;color:#111;background:#fff;padding:5mm;box-sizing:border-box;';
+function printDoc(){
+  let a=apt();
+  if(!a)return alert('Aucun appartement sélectionné.');
 
-  // Injecter styles inline pour le rendu
-  let styleEl = document.createElement('style');
-  styleEl.textContent = `.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:.8pt solid #111;padding-bottom:1.6mm;margin-bottom:2mm}.brand{font-size:5.6pt;font-weight:bold;text-transform:uppercase;color:#555}.title{font-size:11pt;font-weight:bold;margin-top:.8mm}.subtitle{font-size:6.2pt;color:#555}.typebox{border:.7pt solid #111;padding:1.5mm 2.2mm;font-size:7pt;font-weight:bold;text-transform:uppercase}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm;margin-bottom:1.8mm}.info-box{border:.45pt solid #999;padding:1.1mm}.label{font-size:5pt;text-transform:uppercase;color:#555;font-weight:bold}.value{font-size:6.5pt;word-break:break-word}.section{margin:1.5mm 0}.section-title{font-size:7pt;font-weight:bold;border-bottom:.6pt solid #111;padding-bottom:.3mm;margin-bottom:.5mm}#printArea table{width:100%;border-collapse:collapse;font-size:5.4pt;table-layout:fixed}#printArea th{border:.4pt solid #777;background:#f2f2f2;padding:.25mm;text-align:left;font-weight:bold}#printArea td{border:.4pt solid #aaa;padding:.25mm;vertical-align:top;word-break:break-word}.room-name{font-size:7.8pt;font-weight:bold}.room-head{display:flex;justify-content:space-between;border-bottom:.7pt solid #111;margin-bottom:.9mm}.room-note{margin-top:.8mm;border:.4pt solid #aaa;padding:.6mm;font-size:5.5pt}.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:2mm}.sign-box{border:.5pt solid #777;height:22mm;padding:1.2mm;font-size:6pt}.legal{border:.4pt solid #999;background:#fafafa;padding:.9mm;font-size:5.5pt}.photo-grid-print{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}.photo-box{border:.4pt solid #888;padding:.7mm;height:36mm;overflow:hidden}.photo-box img{width:100%;height:28mm;object-fit:contain;display:block}.photo-caption{font-size:5pt;margin-top:.5mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}`;
-  document.head.appendChild(styleEl);
+  // CSS pour le rendu
+  let printCSS=`*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:6.5pt;line-height:1.15;color:#111;background:#fff;width:190mm;padding:5mm}
+.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:.8pt solid #111;padding-bottom:1.6mm;margin-bottom:2mm}
+.brand{font-size:5.6pt;font-weight:bold;text-transform:uppercase;color:#555}
+.title{font-size:11pt;font-weight:bold;margin-top:.8mm}
+.subtitle{font-size:6.2pt;color:#555}
+.typebox{border:.7pt solid #111;padding:1.5mm 2.2mm;font-size:7pt;font-weight:bold;text-transform:uppercase}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm;margin-bottom:1.8mm}
+.info-box{border:.45pt solid #999;padding:1.1mm;overflow:hidden}
+.label{font-size:5pt;text-transform:uppercase;color:#555;font-weight:bold;margin-bottom:.3mm}
+.value{font-size:6pt;word-break:break-word;overflow-wrap:anywhere}
+.section{margin:1.5mm 0}
+.section-title{font-size:7pt;font-weight:bold;border-bottom:.6pt solid #111;padding-bottom:.3mm;margin-bottom:.5mm}
+table{width:100%;border-collapse:collapse;font-size:5.4pt;table-layout:fixed}
+th{border:.4pt solid #777;background:#f2f2f2;padding:.25mm;text-align:left;font-weight:bold}
+td{border:.4pt solid #aaa;padding:.25mm;vertical-align:top;word-break:break-word;overflow-wrap:anywhere}
+.room-page{margin:2mm 0}
+.room-head{display:flex;justify-content:space-between;border-bottom:.7pt solid #111;margin-bottom:.9mm;padding-bottom:.45mm}
+.room-name{font-size:7.8pt;font-weight:bold}
+.room-note{margin-top:.8mm;border:.4pt solid #aaa;padding:.6mm;background:#fafafa;font-size:5.5pt}
+.cover{margin-bottom:2mm}
+.photo-page{margin-top:3mm}
+.photo-title{font-size:8pt;font-weight:bold;border-bottom:.8pt solid #111;margin-bottom:1.8mm;padding-bottom:.6mm}
+.photo-grid-print{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
+.photo-box{border:.4pt solid #888;padding:.7mm;height:40mm;overflow:hidden}
+.photo-box img{width:100%;height:32mm;object-fit:contain;display:block}
+.photo-caption{font-size:5pt;margin-top:.5mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sign-page{margin-top:3mm}
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:2mm}
+.sign-box{border:.5pt solid #777;height:22mm;padding:1.2mm;font-size:6pt}
+.sign-box img{max-width:100%;max-height:14mm;object-fit:contain;margin-top:.8mm}
+.sign-line{margin-top:11mm;border-top:.45pt solid #111;padding-top:.5mm;font-size:5.8pt}
+.legal{border:.4pt solid #999;background:#fafafa;padding:.9mm;font-size:5.5pt;margin-top:1mm}
+p{margin:.8mm 0}`;
 
-  setTimeout(async () => {
-    try {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageW = 200, pageH = 277, margin = 5;
+  // Générer le HTML du document
+  let h=`<div class="doc"><div class="cover"><div class="header"><div><div class="brand">Procès-verbal d'état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d'entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;
 
-      const canvas = await html2canvas(pa, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: pa.scrollWidth,
-        width: pa.scrollWidth
+  a.rooms.forEach(r=>{
+    h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table><tr><th style="width:19%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th><th style="width:18%">À charge de</th><th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td><td>${esc(e.charge)}</td><td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
+    if(r.photos&&r.photos.length){
+      for(let i=0;i<r.photos.length;i+=9){
+        let batch=r.photos.slice(i,i+9);
+        h+=`<div class="photo-page"><div class="photo-title">${esc(r.name)} — photos</div><div class="photo-grid-print">${batch.map((p,j)=>`<div class="photo-box"><img src="${p.src}"><div class="photo-caption">${i+j+1}${p.caption?' — '+esc(p.caption):''}</div></div>`).join('')}</div></div>`;
+      }
+    }
+  });
+
+  h+=`<div class="sign-page"><div class="header"><div><div class="brand">Clôture du procès-verbal</div><div class="title">Signatures</div></div><div class="typebox">${esc(a.type)}</div></div>`;
+  if(a.photos&&a.photos.length){
+    for(let i=0;i<a.photos.length;i+=9){
+      let batch=a.photos.slice(i,i+9);
+      h+=`<div class="photo-page"><div class="photo-title">Photos générales</div><div class="photo-grid-print">${batch.map((p,j)=>`<div class="photo-box"><img src="${p.src}"><div class="photo-caption">${i+j+1}${p.caption?' — '+esc(p.caption):''}</div></div>`).join('')}</div></div>`;
+    }
+  }
+  h+=`<div class="section"><div class="section-title">Observations générales</div><div class="info-box">${esc(a.notes).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="section"><div class="section-title">Signatures des parties</div><div class="legal">Les parties confirment avoir pris connaissance du présent procès-verbal.</div><div class="sign-grid"><div class="sign-box"><b>Locataire(s)</b>${a.signatures.tenantSignature?`<br><img src="${a.signatures.tenantSignature}">`:`<div class="sign-line">Signature / date</div>`}</div><div class="sign-box"><b>Régie / propriétaire</b>${a.signatures.ownerSignature?`<br><img src="${a.signatures.ownerSignature}">`:`<div class="sign-line">Signature / date</div>`}</div></div></div></div></div>`;
+
+  // Créer div de rendu hors écran
+  let renderDiv = document.createElement('div');
+  renderDiv.style.cssText = 'position:fixed;top:0;left:-9999px;width:190mm;background:#fff;';
+  renderDiv.innerHTML = '<style>'+printCSS+'</style>'+h;
+  document.body.appendChild(renderDiv);
+
+  let btn = document.getElementById('btnPrint');
+  btn.textContent = 'Génération PDF...';
+  btn.disabled = true;
+
+  setTimeout(async ()=>{
+    try{
+      const {jsPDF} = window.jspdf;
+      const pdf = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      const PW = 200, PH = 287, M = 5;
+
+      const canvas = await html2canvas(renderDiv,{
+        scale:2,
+        useCORS:true,
+        backgroundColor:'#ffffff',
+        logging:false,
+        width:renderDiv.scrollWidth,
+        windowWidth:renderDiv.scrollWidth
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      const imgW = pageW;
-      const imgH = canvas.height * (imgW / canvas.width);
-      let posY = 0;
+      document.body.removeChild(renderDiv);
 
-      while (posY < imgH) {
-        if (posY > 0) pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, margin - posY, imgW, imgH);
-        posY += pageH - margin * 2;
+      const imgData = canvas.toDataURL('image/jpeg',0.95);
+      const imgW = PW;
+      const imgH = canvas.height*(PW/canvas.width);
+      let y = 0;
+      while(y < imgH){
+        if(y>0) pdf.addPage();
+        pdf.addImage(imgData,'JPEG',M,M-y,imgW,imgH);
+        y += PH;
       }
 
-      pa.style.display = 'none';
-      styleEl.remove();
-      const addr = (apt()?.address || 'etat-des-lieux').replace(/[^a-z0-9]/gi,'_').toLowerCase();
-      pdf.save(addr + '_' + (apt()?.date || '') + '.pdf');
-    } catch(e) {
-      console.error(e);
-      pa.style.display = 'none';
-      styleEl.remove();
-      alert('Erreur PDF: ' + e.message);
+      let fname = (a.address||'edl').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,30);
+      pdf.save(fname+'_'+(a.date||'')+ '.pdf');
+    }catch(err){
+      console.error(err);
+      if(document.body.contains(renderDiv)) document.body.removeChild(renderDiv);
+      alert('Erreur: '+err.message);
+    }finally{
+      btn.textContent='PDF A4';
+      btn.disabled=false;
     }
-  }, 500);
+  },600);
 }
+
 function exportAll(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='etat-des-lieux-suisse-donnees.json';a.click();URL.revokeObjectURL(url)}
 function importAll(file){let r=new FileReader();r.onload=e=>{try{db=JSON.parse(e.target.result);migrate();save();renderAll();alert('Import terminé.')}catch(err){alert('Fichier invalide.')}};r.readAsText(file)}
 function deleteSelected(){let a=apt();if(!a)return;if(confirm('Supprimer ce dossier ?')){db.apartments=db.apartments.filter(x=>x.id!==a.id);db.selectedId=db.apartments[0]?.id||null;save();renderAll()}}
