@@ -29,9 +29,75 @@ function isEtatEntree(){
   return t.includes('entrée') || t.includes('entree');
 }
 
-function renderRooms(){let a=apt(),box=$("#roomList");box.innerHTML="";a.rooms.forEach(r=>{r.photos=r.photos||[];let div=document.createElement('div');div.className='room';div.innerHTML=`<div class=row><input class=room-title value="${esc(r.name)}"><button type=button class="light" data-act=move-up data-room="${r.id}">↑</button><button type=button class="light" data-act=move-down data-room="${r.id}">↓</button><button type=button class=danger data-act=remove-room data-room="${r.id}">Supprimer pièce</button></div><table><thead><tr><th>Élément</th><th>État</th><th>Observation</th>${isEtatEntree()?'':'<th>À charge</th>'}<th>Photo</th><th></th></tr></thead><tbody></tbody></table><button type=button class=addel data-act=add-element data-room="${r.id}">+ Élément</button><h3>Photos de la pièce</h3><div class=small-help>Photos enregistrées dans cette pièce : <b>${r.photos.length}</b></div><input type=file accept="image/*" multiple class=room-file-input><div class="photo-grid pgrid"></div><label>Remarques pièce<textarea class=rnotes>${esc(r.notes)}</textarea></label>`;
-$('.room-title',div).oninput=e=>{r.name=e.target.value;save()};$('.rnotes',div).oninput=e=>{r.notes=e.target.value;save()};let tb=$('tbody',div);r.elements.forEach(el=>{let tr=document.createElement('tr');tr.innerHTML=`<td><input data-el=name value="${esc(el.name)}"></td><td><select data-el=state><option>Bon</option><option>Usure normale</option><option>Moyen</option><option>Mauvais</option><option>Défectueux</option><option>À réparer</option><option>Non contrôlé</option></select></td><td><textarea data-el=observation>${esc(el.observation)}</textarea></td>${isEtatEntree()?'':`<td><select data-el=charge><option>À déterminer</option><option>Locataire / colocataire</option><option>Bailleur / régie</option><option>Usure normale</option><option>Non applicable</option></select></td>`}<td><input data-el=photoNo value="${esc(el.photoNo)}"></td><td><button type=button class=danger data-act=remove-element data-room="${r.id}" data-elid="${el.id}">Supprimer</button></td>`;$('[data-el=state]',tr).value=el.state;if($('[data-el=charge]',tr)) $('[data-el=charge]',tr).value=el.charge;$$('[data-el]',tr).forEach(inp=>{inp.oninput=()=>{el[inp.dataset.el]=inp.value;save()};inp.onchange=inp.oninput});tb.appendChild(tr)});
-$('.room-file-input',div).onchange=e=>{let files=e.target.files;if(!files||!files.length)return;readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});e.target.value=''};photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});box.appendChild(div)})}
+function renderRooms(){
+  let a=apt(),box=$("#roomList");
+  box.innerHTML="";
+  let entree=isEtatEntree();
+
+  a.rooms.forEach(r=>{
+    r.photos=r.photos||[];
+    let div=document.createElement('div');
+    div.className='room';
+
+    div.innerHTML=`<div class=row>
+      <input class=room-title value="${esc(r.name)}">
+      <button type=button class="light" data-act=move-up data-room="${r.id}">↑</button>
+      <button type=button class="light" data-act=move-down data-room="${r.id}">↓</button>
+      <button type=button class=danger data-act=remove-room data-room="${r.id}">Supprimer pièce</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Élément</th>
+          <th>État</th>
+          <th>Observation</th>
+          ${entree ? '' : '<th>À charge</th>'}
+          <th>Photo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button type=button class=addel data-act=add-element data-room="${r.id}">+ Élément</button>
+    <h3>Photos de la pièce</h3>
+    <div class=small-help>Photos enregistrées dans cette pièce : <b>${r.photos.length}</b></div>
+    <input type=file accept="image/*" multiple class=room-file-input>
+    <div class="photo-grid pgrid"></div>
+    <label>Remarques pièce<textarea class=rnotes>${esc(r.notes)}</textarea></label>`;
+
+    $('.room-title',div).oninput=e=>{r.name=e.target.value;save()};
+    $('.rnotes',div).oninput=e=>{r.notes=e.target.value;save()};
+
+    let tb=$('tbody',div);
+    r.elements.forEach(el=>{
+      let tr=document.createElement('tr');
+      tr.innerHTML=`<td><input data-el=name value="${esc(el.name)}"></td>
+        <td><select data-el=state><option>Bon</option><option>Usure normale</option><option>Moyen</option><option>Mauvais</option><option>Défectueux</option><option>À réparer</option><option>Non contrôlé</option></select></td>
+        <td><textarea data-el=observation>${esc(el.observation)}</textarea></td>
+        ${entree ? '' : `<td><select data-el=charge><option>À déterminer</option><option>Locataire / colocataire</option><option>Bailleur / régie</option><option>Usure normale</option><option>Non applicable</option></select></td>`}
+        <td><input data-el=photoNo value="${esc(el.photoNo)}"></td>
+        <td><button type=button class=danger data-act=remove-element data-room="${r.id}" data-elid="${el.id}">Supprimer</button></td>`;
+
+      $('[data-el=state]',tr).value=el.state;
+      if($('[data-el=charge]',tr)) $('[data-el=charge]',tr).value=el.charge;
+      $$('[data-el]',tr).forEach(inp=>{
+        inp.oninput=()=>{el[inp.dataset.el]=inp.value;save()};
+        inp.onchange=inp.oninput;
+      });
+      tb.appendChild(tr);
+    });
+
+    $('.room-file-input',div).onchange=e=>{
+      let files=e.target.files;
+      if(!files||!files.length)return;
+      readPhotosCompressed(files,r.photos,()=>{save();renderRooms();showTab('rooms')});
+      e.target.value='';
+    };
+
+    photoGrid($('.pgrid',div),r.photos,()=>{save();renderRooms();showTab('rooms')});
+    box.appendChild(div);
+  });
+}
 function handleRoomClick(e){let act=e.target.dataset.act;if(!act)return;let a=apt();let roomId=e.target.dataset.room;let r=a.rooms.find(x=>x.id===roomId);
 
 if(act==='move-up'){let i=a.rooms.findIndex(x=>x.id===roomId);if(i>0){[a.rooms[i-1],a.rooms[i]]=[a.rooms[i],a.rooms[i-1]];save();renderRooms();showTab('rooms')}return;}
@@ -100,7 +166,13 @@ p{margin:.8mm 0}`;
   let h=`<div class="doc"><div class="cover"><div class="header"><div><div class="brand">Procès-verbal d'état des lieux — Suisse</div><div class="title">État des lieux</div><div class="subtitle">Document d'entrée / sortie avec réserves et signatures des parties</div></div><div class="typebox">${esc(a.type)}</div></div><div class="info-grid"><div class="info-box"><div class="label">Adresse</div><div class="value">${esc(a.address).replace(/\n/g,'<br>')||'&nbsp;'}</div></div><div class="info-box"><div class="label">Date / heure / référence</div><div class="value">${esc(a.date)} ${esc(a.time)}<br>${esc(a.reference)}</div></div><div class="info-box"><div class="label">Logement</div><div class="value">${esc(a.housingType)}<br>${esc(a.surface)} ${esc(a.floor)}<br>${esc(a.annex)}</div></div><div class="info-box"><div class="label">Régie / propriétaire</div><div class="value">${esc(a.agencyName)} ${esc(a.agencyContact)}<br>${esc(a.ownerName)} ${esc(a.ownerContact)}</div></div></div><div class="section"><div class="section-title">Parties présentes</div><table><tr><th style="width:28%">Nom</th><th style="width:20%">Rôle</th><th style="width:22%">Contact</th><th>Remarque</th></tr>${a.tenants.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td><td>${esc(t.contact)}</td><td>${esc(t.notes)}</td></tr>`).join('')}<tr><td>${esc(a.agencyName)}</td><td>Régie / gérance</td><td>${esc(a.agencyContact)}</td><td></td></tr><tr><td>${esc(a.ownerName)}</td><td>Propriétaire / bailleur</td><td>${esc(a.ownerContact)}</td><td></td></tr></table></div><div class="section"><div class="section-title">Clés, badges et accessoires</div><table><tr><th>Type</th><th style="width:18%">Quantité</th><th>Remarque</th></tr>${a.keys.map(k=>`<tr><td>${esc(k.type)}</td><td>${esc(k.qty)}</td><td>${esc(k.notes)}</td></tr>`).join('')}</table></div><div class="legal"><b>Réserves :</b> les défauts constatés doivent être indiqués précisément. Un exemplaire du présent procès-verbal est destiné à chaque partie.</div></div>`;
 
   a.rooms.forEach(r=>{
-    h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table><tr><th style="width:22%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th>${isEtatEntree()?'':'<th style="width:18%">À charge de</th>'}<th style="width:9%">Photo n°</th></tr>${r.elements.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td>${isEtatEntree()?'':`<td>${esc(e.charge)}</td>`}<td>${esc(e.photoNo)}</td></tr>`).join('')}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
+    const entree=isEtatEntree();
+    const headCharge = entree ? '' : '<th style="width:18%">À charge de</th>';
+    const rows = r.elements.map(e=>{
+      const chargeCell = entree ? '' : `<td>${esc(e.charge)}</td>`;
+      return `<tr><td>${esc(e.name)}</td><td>${esc(e.state)}</td><td>${esc(e.observation)}</td>${chargeCell}<td>${esc(e.photoNo)}</td></tr>`;
+    }).join('');
+    h+=`<div class="room-page"><div class="room-head"><div class="room-name">${esc(r.name)}</div></div><table><tr><th style="width:22%">Élément</th><th style="width:13%">État</th><th>Observation / défaut</th>${headCharge}<th style="width:9%">Photo n°</th></tr>${rows}</table>${r.notes?`<div class="room-note"><b>Remarques :</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>`:''}</div>`;
     if(r.photos&&r.photos.length){
       for(let i=0;i<r.photos.length;i+=9){
         let batch=r.photos.slice(i,i+9);
@@ -123,19 +195,6 @@ p{margin:.8mm 0}`;
   renderDiv.style.cssText='position:fixed;top:0;left:-9999px;width:190mm;background:#fff;';
   renderDiv.innerHTML='<style>'+printCSS+'</style>'+h;
   document.body.appendChild(renderDiv);
-
-  if(isEtatEntree()){
-    renderDiv.querySelectorAll('table').forEach(table=>{
-      let headers=Array.from(table.querySelectorAll('tr:first-child th'));
-      let idx=headers.findIndex(th=>(th.textContent||'').toLowerCase().includes('à charge'));
-      if(idx>=0){
-        table.querySelectorAll('tr').forEach(tr=>{
-          if(tr.children[idx]) tr.children[idx].remove();
-        });
-      }
-    });
-  }
-
 
   let btn=document.getElementById('btnPrint');
   btn.textContent='Génération...';

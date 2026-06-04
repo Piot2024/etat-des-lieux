@@ -1,1 +1,1 @@
-V34: Entrée = suppression forcée de la colonne À charge dans écran + PDF. Sortie = colonne conservée.
+V35: Type Entrée = colonne À charge supprimée à l'écran et dans le PDF. Type Sortie = colonne À charge affichée. Champ Type conservé.
