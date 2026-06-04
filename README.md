@@ -1,1 +1,1 @@
-V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.
+Version modifiée: Entrée = colonne À charge masquée; Sortie = colonne À charge affichée. Mise en page PDF non modifiée.
