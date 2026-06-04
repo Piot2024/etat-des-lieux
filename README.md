@@ -1,1 +1,1 @@
-V24: ajout des boutons Monter / Descendre pour changer l’ordre des pièces. Photos, PDF et reste conservés.
+V25: correction ajout Monter / Descendre pour déplacer les pièces. Stockage et fonctions existantes conservés.

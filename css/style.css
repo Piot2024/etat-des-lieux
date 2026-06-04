@@ -300,11 +300,13 @@ border-bottom:.3pt solid #111;
 }
 
 .movebtn{
-  background:#fff!important;
+  background:#ffffff!important;
   color:#17202a!important;
   border:1px solid #cbd5df!important;
 }
+.room .row{
+  gap:8px!important;
+}
 @media(max-width:900px){
-  .room .row{align-items:stretch!important}
   .room .row button{flex:1 1 auto}
 }
