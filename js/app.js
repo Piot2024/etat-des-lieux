@@ -1,4 +1,4 @@
-const STORE="edl_suisse_v18_pdf_sans_blanc";
+const STORE="edl_suisse_v24_deplacer_pieces";
 let db={apartments:[],selectedId:null};
 const defaultRooms=["Entrée / hall","Salon","Cuisine","Chambre","Salle de bains","WC","Balcon / terrasse","Cave"];
 const defaultElements=["Murs","Plafond","Sol","Plinthes","Porte","Serrure / poignée","Fenêtres","Stores / volets","Prises / interrupteurs","Éclairage","Radiateur","Nettoyage","Équipement / meuble"];

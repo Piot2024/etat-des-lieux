@@ -1,1 +1,1 @@
-V22: signature compacte conservée + suppression du petit texte sous chaque pièce dans le PDF.
+V24: ajout des boutons Monter / Descendre pour changer l’ordre des pièces. Photos, PDF et reste conservés.
